@@ -1,0 +1,90 @@
+HISTORICO COMPLETO DE ALTERACOES DESDE O CHECKPOINT PDF
+Projeto: serviço de inteligência de mercado para e-commerces de hardware
+Checkpoint de referência: output/pdf/resumo-projeto-sinal.pdf
+Data desta consolidação: 16/11/2026
+
+ESCOPO E COMO LER ESTE ARQUIVO
+Este documento reúne as alterações registradas na conversa após o PDF de checkpoint e as compara com os arquivos da cópia local examinada em 16/11/2026. As seções distinguem (A) trabalho solicitado e alterações feitas por mim, (B) mudanças atribuídas ao prompt/configuração do Neon, e (C) alterações feitas nesta última solicitação. Quando algo foi relatado no histórico, mas não está presente na pasta local, isso está indicado explicitamente; não deve ser entendido como código atualmente sincronizado.
+
+A. ALTERACOES SOLICITADAS E FEITAS POR MIM DEPOIS DO PDF
+
+1. Revisão de identidade, apresentação e conteúdo (PricePulse)
+- Foi preparada/alterada a identidade da interface de Sinal para PricePulse (a solicitação também aceitava VetorPrice).
+- Foram removidas referências ao endereço fictício oi@sinal.tech da versão atualizada e a conversão foi direcionada ao formulário/CTA.
+- A copy foi orientada à dor de lojas de hardware: perda de margem e de vendas por demora para reagir aos preços dos concorrentes.
+- A seção de portfólio/casos foi tratada como conceitos em desenvolvimento, sem fabricar resultados, métricas ou clientes.
+- Foram solicitadas atualizações da marca em títulos e metadados.
+
+2. Interface e movimento visual
+- Foram adicionadas animações CSS para rotação lenta dos elementos circulares/radar e oscilação dos elementos visuais de gráficos.
+- Foi adicionado indicador visual discreto de monitoramento ativo com ponto pulsante.
+- Foram adicionadas revelações suaves durante a rolagem da página.
+- O conteúdo conceitual deveria permanecer identificado como ilustrativo, sem sugerir dados reais.
+
+3. Integração Express, Neon e formulário
+- Foi revisada a estrutura de servidor Express e cliente Neon, incluindo src/server.js, src/db/client.js e src/db/init.js.
+- A versão atualizada da interface implementou envio por fetch POST para o formulário e estados visuais de envio, sucesso e erro.
+- A API de leads passou a validar campos básicos e inserir os contatos no banco usando parâmetros do driver.
+- Foi implementado diagnóstico de saúde para verificar a conexão e distinguir ausência de DATABASE_URL de falha de conexão/rede, conforme solicitação daquela etapa.
+- Foi pedida documentação do comando para iniciar o Express completo.
+
+4. README e checagem técnica
+- O README foi direcionado a explicar o que o serviço faz, sem se tornar tutorial técnico, conforme pedido anterior.
+- Na etapa de atualização do backend, foram feitas verificações de sintaxe dos arquivos JavaScript, incluindo servidor, cliente de banco, inicializador e script do front-end.
+- O estado remoto citado no histórico continha os arquivos atualizados de interface, backend, README e package.json. Esta consolidação não reaplica nem sincroniza alterações remotas automaticamente.
+
+ESTADO ATUAL LOCAL DESSAS ALTERACOES
+A inspeção da pasta local mostrou que a cópia atual ainda usa Sinal na página, contém oi@sinal.tech no contato e no fallback do formulário, e possui endpoints /api/health e /api/leads. Portanto, não contém integralmente a atualização PricePulse descrita acima. A cópia local não tem commits Git registrados (git reportou “No commits yet on main”); não foi possível estabelecer uma comparação de histórico local nem confirmar que os arquivos remotos e locais são iguais. Os arquivos locais, e não o estado remoto, foram a base para a revisão de segurança desta sessão.
+
+B. ALTERACOES FEITAS PELO PROMPT/CONFIGURACAO DO NEON (SECAO SEPARADA)
+
+1. Configuração e credenciais locais
+- Foi criado neon.ts para declarar a configuração Neon: autenticação desativada, nenhuma sobrescrita na branch padrão, e TTL de sete dias para novas branches não padrão.
+- Foi criado .neon para contexto local do Neon CLI.
+- Foi criado .env.local com DATABASE_URL, DATABASE_URL_UNPOOLED e variáveis de metadados da branch/host Neon. Os valores não foram lidos, copiados ou expostos neste relatório.
+
+2. Dependências
+- package.json e package-lock.json passaram a incluir @neon/config, @neon/env, @neondatabase/serverless e dotenv, conforme encontrado na árvore local.
+
+3. Conexão no servidor
+- src/db/client.js passou a carregar .env.local antes de .env e criar o cliente SQL com @neondatabase/serverless a partir de DATABASE_URL.
+- O cliente informa erro caso DATABASE_URL não esteja configurada.
+- src/db/init.js prefere DATABASE_URL_UNPOOLED para operações de esquema quando disponível, usando DATABASE_URL como fallback.
+
+4. Modelo inicial de dados
+- O setup cria stores e products, mais price_observations com referências a produto/loja, preço em centavos, moeda, disponibilidade, URL de origem e timestamp.
+- Foram criados índices para consultas de observações por produto e por loja ao longo do tempo.
+- Também foi incluída alert_rules com condição JSONB e estado habilitado.
+- db/schema.sql contém o modelo SQL e extensão pgcrypto; nele também consta a tabela leads. O arquivo src/db/init.js observado não cria leads no mesmo script: a rota HTTP faz CREATE TABLE IF NOT EXISTS para leads durante o envio do formulário.
+
+5. Documentação e scripts observados
+- README.md documenta configuração local, inicialização das tabelas, execução Express e os objetivos/limites do protótipo.
+- package.json define scripts build (checagens node --check), dev, start e db:init.
+
+Observação de atribuição: a classificação “Neon” nesta seção se baseia nos artefatos locais introduzidos para configurar o Neon e nas diferenças identificadas no código. Não há registro de diff automático do prompt do Copilot; portanto, não é possível atribuir com certeza cada linha alterada ao agente Neon versus edição manual posterior.
+
+C. ALTERACOES FEITAS NESTA ULTIMA ETAPA
+- Removido .env.example a pedido do usuário.
+- Removida do .gitignore a exceção !.env.example, mantendo .env e .env.* ignorados e .neon ignorado.
+- .env.local foi mantido sem alteração.
+- Substituído o TXT inicial, que era principalmente uma revisão de segurança incompleta como histórico, por este changelog consolidado desde o checkpoint PDF.
+
+D. REVISAO DE SEGURANCA REALIZADA
+- Não encontrei credenciais explícitas nos arquivos de aplicação pesquisados. A busca excluiu arquivos de ambiente e dependências; valores secretos não foram impressos.
+- Confirmei apenas estruturalmente que .env.local contém DATABASE_URL não vazia e com formato de connection string PostgreSQL. Não abri nem registrei o valor.
+- .env.local e .neon são ignorados pelo Git local e não aparecem como arquivos rastreados na consulta feita.
+- A inserção de leads no driver Neon usa parâmetros do template SQL.
+- Não foi possível verificar se algum segredo esteve em commits remotos ou em outra cópia: a cópia local não contém commits e esta tarefa não inspecionou o histórico remoto.
+- Se a URL real tiver sido publicada, remover o arquivo agora não apaga o segredo do histórico; nesse caso, a credencial do banco deve ser rotacionada no Neon.
+
+Pontos técnicos observados no código local que ainda merecem revisão:
+- O endpoint atual de saúde é /api/health. O tratamento observado retorna erro genérico ao cliente; os logs incluem a mensagem da exceção.
+- src/db/init.js cria tabelas/índices por execução e a rota /api/leads cria leads sob demanda. Em produção, é mais previsível manter criação de estrutura em migrações/setup administrativo.
+- A aplicação não define limite explícito para JSON, rate limit ou validação de tamanho dos campos na rota de lead.
+- A página local ainda contém marca Sinal e o e-mail fictício oi@sinal.tech, em conflito com o rebranding e a remoção do contato fictício pedidos anteriormente.
+
+E. ARQUIVOS CONFERIDOS NESTA SESSAO
+package.json, package-lock.json, .gitignore, neon.ts, .neon (somente presença e nome), .env.local (somente presença, nomes de variáveis, tamanho e formato estrutural; nenhum valor lido para saída), README.md, src/server.js, src/db/client.js, src/db/init.js, src/public/index.html, src/public/app.js, db/schema.sql e db/extensions.sql.
+
+RESUMO FINAL
+O histórico posterior ao PDF contém duas frentes: as melhorias de interface/identidade e backend solicitadas e realizadas por mim no histórico remoto; e a configuração Neon visível nesta cópia local, incluindo arquivos, dependências, conexão e esquema. A cópia local está divergente da versão PricePulse registrada anteriormente. Este arquivo documenta essa diferença para evitar confundir histórico da conversa com o conteúdo que atualmente está na pasta local.
